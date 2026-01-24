@@ -1,0 +1,16 @@
+# Build artifacts
+/target/
+
+# IDE/Editor settings
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large reference files
+datasheet.txt

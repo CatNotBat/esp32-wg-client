@@ -1,0 +1,22 @@
+[package]
+name = "esp32-blink"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# The Core
+esp-hal = { version = "1.0.0", features = ["esp32", "unstable"] }
+
+# Use these EXACT versions to avoid dependency hell:
+esp-backtrace = { version = "0.15.0", features = ["esp32", "panic-handler", "println"] }
+esp-println   = { version = "0.13.1", features = ["esp32", "log"] }
+log           = "0.4"
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+
+# Configure esp-println baud rate
+[package.metadata.esp-println]
+uart_baudrate = "115_200"
