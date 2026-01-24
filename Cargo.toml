@@ -1,22 +1,26 @@
 [package]
-name = "esp32-blink"
+name = "esp32-wireguard"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "WireGuard VPN client for ESP32 in Rust"
+repository = "https://github.com/yourusername/esp32-wireguard"
+keywords = ["esp32", "wireguard", "vpn", "embedded", "iot"]
+categories = ["embedded", "network-programming"]
 
 [dependencies]
-# The Core
-esp-hal = { version = "1.0.0", features = ["esp32", "unstable"] }
+esp-idf-svc = "0.51"
+log = "0.4"
+anyhow = "1.0"
 
-# Use these EXACT versions to avoid dependency hell:
-esp-backtrace = { version = "0.15.0", features = ["esp32", "panic-handler", "println"] }
-esp-println   = { version = "0.13.1", features = ["esp32", "log"] }
-log           = "0.4"
+[build-dependencies]
+embuild = "0.33"
 
 [profile.release]
 opt-level = "s"
 lto = "fat"
-codegen-units = 1
 
-# Configure esp-println baud rate
-[package.metadata.esp-println]
-uart_baudrate = "115_200"
+[package.metadata.esp-idf-sys]
+extra_components = [
+    { component_dirs = ["components"], bindings_header = "src/bindings.h", bindings_module = "wireguard" }
+]

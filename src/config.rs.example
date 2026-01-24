@@ -1,0 +1,38 @@
+// ============================================================================
+// Configuration Template
+// ============================================================================
+// Copy this file to config.rs and fill in your values:
+//   cp src/config.rs.example src/config.rs
+//
+// config.rs is gitignored so your secrets won't be committed.
+
+// WiFi Credentials
+pub const WIFI_SSID: &str = "YOUR_WIFI_SSID";
+pub const WIFI_PASS: &str = "YOUR_WIFI_PASSWORD";
+
+// WireGuard Configuration
+// Generate keys with: wg genkey | tee privatekey | wg pubkey > publickey
+
+/// Your WireGuard private key (base64, 44 characters)
+pub const WG_PRIVATE_KEY: &str = "YOUR_PRIVATE_KEY_BASE64";
+
+/// WireGuard server's public key (base64)
+pub const WG_PEER_PUBLIC_KEY: &str = "SERVER_PUBLIC_KEY_BASE64";
+
+/// Your IP address inside the VPN tunnel
+pub const WG_LOCAL_IP: &str = "10.0.0.2";
+
+/// Subnet mask for the tunnel interface
+pub const WG_LOCAL_NETMASK: &str = "255.255.255.0";
+
+/// WireGuard server endpoint (IP or hostname)
+pub const WG_PEER_ENDPOINT: &str = "your.vpn.server.com";
+
+/// WireGuard server port (default: 51820)
+pub const WG_PEER_PORT: u16 = 51820;
+
+/// Keepalive interval in seconds (0 = disabled, 25 = good for NAT)
+pub const WG_KEEPALIVE: u16 = 25;
+
+/// NTP server for time synchronization
+pub const NTP_SERVER: &str = "pool.ntp.org";

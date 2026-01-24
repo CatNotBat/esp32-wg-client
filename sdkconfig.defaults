@@ -1,0 +1,66 @@
+# sdkconfig.defaults - ESP-IDF Configuration
+#
+# C-LEARNING MOMENT: Kconfig System
+# ==================================
+# ESP-IDF uses Kconfig (same as Linux kernel) for compile-time configuration.
+# Instead of #define in header files, you set options here.
+#
+# In C, you'd run `idf.py menuconfig` to get a TUI menu.
+# These settings become #defines in sdkconfig.h that the C code includes.
+#
+# Example: CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10 becomes:
+#   #define CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM 10
+# in the generated sdkconfig.h file.
+
+# ============================================
+# PARTITION TABLE
+# ============================================
+# Your 4MB flash is divided into partitions (like disk partitions).
+# "single_factory_app" means: bootloader + 1 app + NVS storage
+CONFIG_PARTITION_TABLE_SINGLE_APP=y
+
+# ============================================
+# WIFI CONFIGURATION
+# ============================================
+# Static buffers are allocated at boot (predictable memory usage)
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=32
+CONFIG_ESP_WIFI_TX_BUFFER_TYPE=1
+CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=32
+
+# ============================================
+# LWIP (Lightweight IP Stack) CONFIGURATION
+# ============================================
+# LwIP is the TCP/IP stack. These settings affect memory and performance.
+CONFIG_LWIP_MAX_SOCKETS=10
+CONFIG_LWIP_SO_RCVBUF=y
+
+# Enable SNTP for time synchronization (needed for WireGuard)
+CONFIG_LWIP_SNTP_MAX_SERVERS=3
+
+# ============================================
+# FREERTOS CONFIGURATION
+# ============================================
+# Tick rate: how often FreeRTOS switches tasks (1000 = every 1ms)
+CONFIG_FREERTOS_HZ=1000
+
+# ============================================
+# RUST-SPECIFIC
+# ============================================
+# Enable pthread support (Rust std::thread uses pthreads)
+CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT=8192
+
+# ============================================
+# WIREGUARD CONFIGURATION (Phase 4)
+# ============================================
+# Use ESP-NETIF (modern network interface abstraction)
+CONFIG_WIREGUARD_ESP_NETIF=y
+
+# Single peer (our VPN server)
+CONFIG_WIREGUARD_MAX_PEERS=1
+
+# Max source IPs for allowed_ips
+CONFIG_WIREGUARD_MAX_SRC_IPS=2
+
+# Use default x25519 implementation (Curve25519 key exchange)
+CONFIG_WIREGUARD_x25519_IMPLEMENTATION_DEFAULT=y

@@ -1,11 +1,32 @@
 [build]
-target = "xtensa-esp32-none-elf"
+# "espidf" instead of "none" - this tells cargo we're using the IDF framework
+target = "xtensa-esp32-espidf"
 
-[target.xtensa-esp32-none-elf]
-runner = "espflash flash --monitor --ignore-app-descriptor"
+[target.xtensa-esp32-espidf]
+linker = "ldproxy"
+runner = "espflash flash --monitor"
+
 rustflags = [
-  "-C", "link-arg=-Tlinkall.x",
+    "--cfg", "espidf_time64",
 ]
 
+[env]
+# Use ESP-IDF version 5.2 (stable, well-tested with esp-idf-svc 0.51)
+ESP_IDF_VERSION = "v5.2.3"
+
+# MCU target for the IDF build system
+MCU = "esp32"
+
+# CRITICAL: Use native toolchain (already installed via espup)
+# This tells esp-idf-sys to use the Xtensa GCC from PATH instead of downloading
+ESP_IDF_TOOLS_INSTALL_DIR = "global"
+
+# Path to clang for bindgen (auto-generating Rust from C headers)
+LIBCLANG_PATH = "/home/levlevon/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-20.1.1_20250829/esp-clang/lib"
+
+# Note: Extra components are configured in Cargo.toml [package.metadata.esp-idf-sys]
+# We don't set ESP_IDF_COMPONENTS here - let it include all default components
+
 [unstable]
-build-std = ["core", "alloc"]
+# We use the full std library, not just core/alloc
+build-std = ["std", "panic_abort"]

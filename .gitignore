@@ -1,6 +1,9 @@
 # Build artifacts
 /target/
 
+# Secrets (copy config.rs.example to config.rs and edit)
+src/config.rs
+
 # IDE/Editor settings
 .vscode/
 .idea/
@@ -14,3 +17,6 @@ Thumbs.db
 
 # Large reference files
 datasheet.txt
+
+# ESP-IDF component manager lock (generated)
+components_esp32.lock
