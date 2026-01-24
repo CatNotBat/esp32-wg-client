@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl gcc ninja-build cmake libffi-dev libssl-dev \
+            dfu-util libusb-1.0-0 python3 python3-pip python3-venv
+
+      - name: Install ESP Rust toolchain
+        uses: esp-rs/xtensa-toolchain@v1.5
+        with:
+          default: true
+          buildtargets: esp32
+          ldproxy: true
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache ESP-IDF
+        uses: actions/cache@v4
+        with:
+          path: ~/.espressif
+          key: ${{ runner.os }}-esp-idf-v5.2.3
+          restore-keys: |
+            ${{ runner.os }}-esp-idf-
+
+      - name: Create config.rs for CI
+        run: |
+          cp src/config.rs.example src/config.rs
+
+      - name: Check formatting
+        run: cargo fmt -- --check
+
+      - name: Run Clippy
+        run: cargo clippy -- -D warnings
+        env:
+          ESP_IDF_VERSION: v5.2.3
+          ESP_IDF_TOOLS_INSTALL_DIR: global
+
+      - name: Build release
+        run: cargo build --release
+        env:
+          ESP_IDF_VERSION: v5.2.3
+          ESP_IDF_TOOLS_INSTALL_DIR: global
