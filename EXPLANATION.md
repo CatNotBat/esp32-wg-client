@@ -344,6 +344,125 @@ fn main() -> ! {
 
 ---
 
+## GPIO Input: Button Handling
+
+This section explains how to read digital input from a button.
+
+### Hardware Concepts
+
+#### Pull-up Resistors
+
+When a GPIO pin is configured as input, it needs a defined voltage level. Without this, the pin "floats" and picks up electrical noise, giving random readings.
+
+```
+         3.3V
+          │
+          ┣━━ Pull-up resistor (~45kΩ internal)
+          │
+GPIO4 ────┫
+          │
+       [BUTTON]
+          │
+         GND
+```
+
+**With internal pull-up enabled:**
+- Button **released**: Pin reads HIGH (pulled to 3.3V through resistor)
+- Button **pressed**: Pin reads LOW (connected directly to GND, overriding weak pull-up)
+
+This is called **active-low** - the button is "active" (pressed) when the signal is LOW.
+
+#### Why Active-Low?
+
+Active-low is preferred because:
+1. GND is a more stable reference than VCC
+2. Less susceptible to noise
+3. Industry convention for buttons/switches
+
+### Code Concepts
+
+#### Input Configuration
+
+```rust
+let button = Input::new(
+    peripherals.GPIO4,
+    InputConfig::default().with_pull(Pull::Up),
+);
+```
+
+- **`Input::new()`** - Creates an input pin (vs `Output::new()` for output)
+- **`InputConfig::default()`** - Default configuration
+- **`.with_pull(Pull::Up)`** - Enables internal pull-up resistor
+
+The `Pull` enum has three options:
+- **`Pull::Up`** - Internal pull-up (pin defaults to HIGH)
+- **`Pull::Down`** - Internal pull-down (pin defaults to LOW)
+- **`Pull::None`** - No internal resistor (requires external resistor)
+
+#### Reading Pin State
+
+```rust
+let button_pressed = button.is_low();
+```
+
+- **`is_low()`** - Returns `true` if pin voltage is near 0V
+- **`is_high()`** - Returns `true` if pin voltage is near 3.3V
+
+Since our button is active-low: `is_low()` = pressed, `is_high()` = released.
+
+### Edge Detection
+
+We only want to toggle the LED **once per button press**, not continuously while held.
+
+```rust
+if button_pressed && !button_was_pressed {
+    // This code runs ONCE when button is first pressed
+}
+button_was_pressed = button_pressed;
+```
+
+This is called **edge detection** - detecting the transition (edge) rather than the state (level).
+
+**State machine visualization:**
+
+```
+Time:          t1    t2    t3    t4    t5    t6
+Button:       HIGH  HIGH  LOW   LOW   LOW   HIGH
+button_pressed: F     F     T     T     T     F
+button_was_pressed: F  F     F     T     T     T
+Condition met: No    No   YES   No    No    No
+```
+
+Only at `t3` do we have `pressed=true AND was_pressed=false` (the falling edge).
+
+### Debouncing
+
+Mechanical buttons don't make clean contact. They "bounce" rapidly for 5-20ms:
+
+```
+Ideal button press:     ─────┐_____________
+                             │
+Actual button press:    ─────┐┐┐┐__________
+                             ││││ (bouncing)
+```
+
+Without debouncing, a single press might register as 3-10 presses.
+
+**Our simple debounce solution:**
+
+```rust
+delay.delay(Duration::from_millis(20));  // Poll every 20ms
+```
+
+By only checking every 20ms, we're guaranteed to miss the bouncing period. This is called **polling debounce**.
+
+More sophisticated debouncing approaches:
+1. **Timer-based**: Start a timer on first edge, ignore subsequent edges until timer expires
+2. **Counter-based**: Require N consecutive identical readings
+3. **Hardware RC filter**: Capacitor smooths the signal physically
+
+---
+
 ## Troubleshooting
 
 ### Linker not found
