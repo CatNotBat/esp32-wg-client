@@ -61,7 +61,7 @@ mod wireguard {
 
             let ret = unsafe { sys::wireguard::esp_wireguard_init(&mut config, &mut ctx) };
 
-            if ret != sys::ESP_OK as i32 {
+            if ret != sys::ESP_OK {
                 return Err("esp_wireguard_init failed");
             }
 
@@ -78,7 +78,7 @@ mod wireguard {
         pub fn connect(&mut self) -> Result<(), &'static str> {
             let ret = unsafe { sys::wireguard::esp_wireguard_connect(&mut self.ctx) };
 
-            if ret != sys::ESP_OK as i32 {
+            if ret != sys::ESP_OK {
                 return Err("esp_wireguard_connect failed");
             }
 
@@ -87,13 +87,14 @@ mod wireguard {
 
         pub fn is_peer_up(&mut self) -> bool {
             let ret = unsafe { sys::wireguard::esp_wireguardif_peer_is_up(&mut self.ctx) };
-            ret == sys::ESP_OK as i32
+            ret == sys::ESP_OK
         }
 
+        #[allow(dead_code)]
         pub fn set_default_gateway(&mut self) -> Result<(), &'static str> {
             let ret = unsafe { sys::wireguard::esp_wireguard_set_default(&mut self.ctx) };
 
-            if ret != sys::ESP_OK as i32 {
+            if ret != sys::ESP_OK {
                 return Err("esp_wireguard_set_default failed");
             }
 
@@ -103,7 +104,7 @@ mod wireguard {
         pub fn disconnect(&mut self) -> Result<(), &'static str> {
             let ret = unsafe { sys::wireguard::esp_wireguard_disconnect(&mut self.ctx) };
 
-            if ret != sys::ESP_OK as i32 {
+            if ret != sys::ESP_OK {
                 return Err("esp_wireguard_disconnect failed");
             }
 
